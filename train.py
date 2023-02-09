@@ -62,7 +62,8 @@ def train():
     best = wdir + 'best.pt'
     results_file = wdir + 'results.txt'
     opt.weights = last if opt.resume else opt.weights
-    os.makedirs(wdir, exist_ok=True)
+    os.makedirs(os.path.join(wdir, "images"), exist_ok=True)
+    tb_writer = SummaryWriter(wdir)
 
     if 'pw' not in opt.arc:  # remove BCELoss positive weights
         hyp['cls_pw'] = 1.
@@ -425,6 +426,7 @@ def train():
                                               model=model,
                                               conf_thres=0.001 if final_epoch and epoch > 0 else 0.1,  # 0.1 for speed
                                               save_json=final_epoch and epoch > 0 and 'coco.data' in data)
+                shutil.move("tmp.jpg", os.path.join(wdir, "images/epoch_{}.jpg".format(epoch)))
 
         # Write epoch results
         with open(results_file, 'a') as f:

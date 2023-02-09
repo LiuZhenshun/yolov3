@@ -786,6 +786,42 @@ def plot_images(imgs, targets, paths=None, fname='images.jpg'):
     plt.close()
 
 
+def out2ls(out):
+    tensor = torch.Tensor
+    ls = []
+    for idx, item in enumerate(out):
+        item = item.tolist()
+        for i in item:
+            ls.append([idx, 0, i[0], i[1], i[2], i[3]])
+    return tensor(ls)
+
+
+def plot_output(imgs, targets, paths=None, fname='tmp.jpg'):
+    # Plots training images overlaid with targets
+    imgs = imgs.cpu().numpy()
+    targets = targets.cpu().numpy()
+    # targets = targets[targets[:, 1] == 21]  # plot only one class
+
+    fig = plt.figure(figsize=(10, 10))
+    bs, _, h, w = imgs.shape  # batch size, _, height, width
+    bs = min(bs, 16)  # limit plot to 16 images
+    ns = int(np.ceil(bs ** 0.5)) # number of subplots
+
+    for i in range(bs):
+        boxes = np.array([[box[2], box[3], box[4], box[5]] for box in targets if int(box[0]) == i]).transpose()
+        # boxes = xywh2xyxy(targets[targets[:, 0] == i, 2:6]).T
+        plt.subplot(ns, ns, i + 1).imshow(imgs[i].transpose(1, 2, 0))
+        plt.plot(boxes[[0, 2, 2, 0, 0]], boxes[[1, 1, 3, 3, 1]], '.-')
+        plt.axis('off')
+        if paths is not None:
+            s = Path(paths[i]).name
+            plt.title(s[:min(len(s), 40)], fontdict={'size': 8})  # limit to 40 characters
+    fig.tight_layout()
+    fig.savefig(fname, dpi=200)
+    plt.close()
+    # writer.add_image(fname, cv2.imread(fname)[:, :, ::-1], dataformats='HWC')
+
+
 def plot_test_txt():  # from utils.utils import *; plot_test()
     # Plot test.txt histograms
     x = np.loadtxt('test.txt', dtype=np.float32)

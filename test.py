@@ -55,6 +55,8 @@ def test(cfg,
                             collate_fn=dataset.collate_fn)
 
     seen = 0
+    write_tb = True
+
     model.eval()
     coco91class = coco80_to_coco91_class()
     s = ('%20s' + '%10s' * 6) % ('Class', 'Images', 'Targets', 'P', 'R', 'mAP', 'F1')
@@ -79,6 +81,11 @@ def test(cfg,
 
         # Run NMS
         output = non_max_suppression(inf_out, conf_thres=conf_thres, nms_thres=nms_thres)
+
+        if None not in output and write_tb:
+            outs = out2ls(output)
+            write_tb = False
+            plot_output(imgs, outs)
 
         # Statistics per image
         for si, pred in enumerate(output):
