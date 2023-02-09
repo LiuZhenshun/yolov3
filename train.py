@@ -142,7 +142,7 @@ def train():
             with open(results_file, 'w') as file:
                 file.write(chkpt['training_results'])  # write results.txt
 
-        start_epoch = chkpt['epoch'] + 1
+        # start_epoch = chkpt['epoch'] + 1
         del chkpt
 
     # elif weights.endswith('.pth'):
@@ -426,8 +426,10 @@ def train():
                                               model=model,
                                               conf_thres=0.001 if final_epoch and epoch > 0 else 0.1,  # 0.1 for speed
                                               save_json=final_epoch and epoch > 0 and 'coco.data' in data)
-                shutil.move("tmp.jpg", os.path.join(wdir, "images/epoch_{}.jpg".format(epoch)))
-
+                try:
+                    shutil.move("tmp.jpg", os.path.join(wdir, "images/epoch_{}.jpg".format(epoch)))
+                except:
+                    pass
         # Write epoch results
         with open(results_file, 'a') as f:
             f.write(s + '%10.3g' * 7 % results + '\n')  # P, R, mAP, F1, test_losses=(GIoU, obj, cls)
@@ -469,7 +471,7 @@ def train():
                 torch.save(chkpt, best)
 
             # Save backup every 10 epochs (optional)
-            if epoch > 0 and epoch % 10 == 0:
+            if epoch > 0 and epoch % 40 == 0:
                 torch.save(chkpt, wdir + 'backup%g.pt' % epoch)
 
             # Delete checkpoint
