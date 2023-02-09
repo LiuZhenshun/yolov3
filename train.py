@@ -9,6 +9,7 @@ from models import *
 from utils.datasets import *
 from utils.utils import *
 from utils.prune_utils import *
+from utils.compute_flops import print_model_param_flops, print_model_param_nums
 
 
 mixed_precision = True
@@ -98,6 +99,11 @@ def train():
             pg1 += [v]  # parameter group 1 (apply weight_decay)
         else:
             pg0 += [v]  # parameter group 0
+
+    flops = print_model_param_flops(model)
+    params = print_model_param_nums(model)
+    print("The FLOPs of current model is {}".format(flops))
+    print("The params of current model is {}".format(params))
 
     if opt.adam:
         optimizer = optim.Adam(pg0, lr=hyp['lr0'])
@@ -528,7 +534,7 @@ if __name__ == '__main__':
     
     
     opt = parser.parse_args()
-    opt.weights = last if opt.resume else opt.weights
+
     print(opt)
     device = torch_utils.select_device(opt.device, apex=mixed_precision)
 
